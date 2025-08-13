@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Amazon Package Progress (APP)
 // @namespace    Unseeable's Things
-// @version      1.0.0
+// @version      1.0.0-b1r0
 // @description  Displays a percentage on the package tracking page that represents the progress into the process of delivering your package (i need help wording this).
 // @author       Colton Stone
 // @license      GPL-3.0-or-later
@@ -32,27 +32,32 @@ var udoc = uwin.document;
     }
   `);
   uwin.onload = () => {
-    uwin.addEventListener("DOMContentLoaded", () => {
-      const sections = udoc.querySelectorAll("div.pt-status-milestone");
-      sections.forEach((section) => {
-        const bar = section.querySelector("div.pt-status-milestone-bar");
+    uwin.alert("loaded");
+    const sections = udoc.querySelector("div.pt-status-milestones").childNodes;
+    sections.forEach((section) => {
+      const bar = section.querySelector("div.pt-status-milestone-bar");
+      if (bar != null) {
         const div = udoc.createElement("div");
         const span = udoc.createElement("span");
         div.classList.add("percentageContainer");
         span.classList.add("percentage");
+        console.log(section.getAttribute("data-percent-complete"));
+        span.textContent = `${section.getAttribute("data-percent-complete")}%`;
         div.appendChild(span);
+        console.log(bar);
         bar.appendChild(div);
         // const div = GM_addElement(bar, "div", {
         //   class: "percentageContainer"
         // });
         // const span = GM_addElement(div, "span", {
-        //   class: "percentage"
+        //   class: "percentage",
+        //   textContent: `${section.getAttribute("data-percent-complete")}%`
         // });
         const observer = new MutationObserver((mutations) => {
           mutations.forEach((mutation) => {
             const attribute = mutation.attributeName;
             if (attribute == "data-percent-complete") {
-              var percentage = mutation.target.getAttribute(attribute);
+              var percentage = `${mutation.target.getAttribute(attribute)}%`;
               div.removeChild(span);
               bar.removeChild(div);
               // span.remove();
@@ -73,7 +78,7 @@ var udoc = uwin.document;
         observer.observe(section, {
           attributes: true
         });
-      });
+      }
     });
   }
 })();

@@ -32,10 +32,9 @@ var udoc = uwin.document;
     }
   `);
   uwin.onload = () => {
-    uwin.alert("loaded");
     const sections = udoc.querySelector("div.pt-status-milestones").childNodes;
     sections.forEach((section) => {
-      const bar = section.querySelector("div.pt-status-milestone-bar");
+      const bar = section.querySelector("div.pt-status-milestone-bar-progress");
       if (bar != null) {
         const div = udoc.createElement("div");
         const span = udoc.createElement("span");

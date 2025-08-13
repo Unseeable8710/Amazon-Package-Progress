@@ -35,41 +35,46 @@ var udoc = uwin.document;
     const sections = udoc.querySelector("div.pt-status-milestones").childNodes;
     sections.forEach((section) => {
       const bar = section.querySelector("div.pt-status-milestone-bar-progress");
+      var percentage = section.getAttribute("data-percent-complete");
       if (bar != null) {
         const div = udoc.createElement("div");
         const span = udoc.createElement("span");
         div.classList.add("percentageContainer");
         span.classList.add("percentage");
-        console.log(section.getAttribute("data-percent-complete"));
-        span.textContent = `${section.getAttribute("data-percent-complete")}%`;
-        div.appendChild(span);
-        console.log(bar);
-        bar.appendChild(div);
-        // const div = GM_addElement(bar, "div", {
-        //   class: "percentageContainer"
-        // });
-        // const span = GM_addElement(div, "span", {
-        //   class: "percentage",
-        //   textContent: `${section.getAttribute("data-percent-complete")}%`
-        // });
+        span.textContent = `${percentage}%`;
+        if (percentage != "0") {
+          div.appendChild(span);
+          bar.appendChild(div);
+          // const div = GM_addElement(bar, "div", {
+          //   class: "percentageContainer"
+          // });
+          // const span = GM_addElement(div, "span", {
+          //   class: "percentage",
+          //   textContent: `${percentage}%`
+          // });
+        }
         const observer = new MutationObserver((mutations) => {
           mutations.forEach((mutation) => {
             const attribute = mutation.attributeName;
             if (attribute == "data-percent-complete") {
-              var percentage = `${mutation.target.getAttribute(attribute)}%`;
-              div.removeChild(span);
-              bar.removeChild(div);
-              // span.remove();
-              // div.remove();
+              percentage = `${mutation.target.getAttribute(attribute)}%`;
+              try {
+                div.removeChild(span);
+                bar.removeChild(div);
+              } catch (error) {
+                console.warn(error);
+              }
               span.textContent = percentage;
               div.appendChild(span);
               bar.appendChild(div);
+              // span.remove();
+              // div.remove();
               // const div = GM_addElement(bar, "div", {
               //   class: "percentageContainer"
               // });
               // const span = GM_addElement(div, "span", {
               //   class: "percentage",
-              //   textContent: percentage
+              //   textContent: `${percentage}%`
               // });
             }
           });

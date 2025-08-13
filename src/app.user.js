@@ -7,16 +7,73 @@
 // @license      GPL-3.0-or-later
 // @tag          productivity
 // @tag          utilities
-// @match        https://www.amazon.com/gp/your-account/ship-track
+// @match        *://*.amazon.com/gp/your-account/ship-track*
 // @icon         https://www.google.com/s2/favicons?sz=32&domain=https://amazon.com
 // @grant        unsafeWindow
+// @grant        GM_addStyle
+// @grant        GM_addElement
+// @run-at       document-start
 // ==/UserScript==
 
-(function() {
-  const progressBars = document.querySelector("div.pt-status-milestones").childNodes;
-  const bar1 = progressBars[0];
-  const bar2 = progressBars[1];
-  const bar3 = progressBars[2];
-  const bar4 = progressBars[3];
-  bar1.classList.add("");
+var uwin = unsafeWindow;
+var udoc = uwin.document;
+(function () {
+  GM_addStyle(`
+    .percentageContainer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 2px;
+      background-color: rgb(28, 127, 227);
+    }
+    .percentage {
+      color: #fff;
+    }
+  `);
+  uwin.onload = () => {
+    uwin.addEventListener("DOMContentLoaded", () => {
+      const sections = udoc.querySelectorAll("div.pt-status-milestone");
+      sections.forEach((section) => {
+        const bar = section.querySelector("div.pt-status-milestone-bar");
+        const div = udoc.createElement("div");
+        const span = udoc.createElement("span");
+        div.classList.add("percentageContainer");
+        span.classList.add("percentage");
+        div.appendChild(span);
+        bar.appendChild(div);
+        // const div = GM_addElement(bar, "div", {
+        //   class: "percentageContainer"
+        // });
+        // const span = GM_addElement(div, "span", {
+        //   class: "percentage"
+        // });
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            const attribute = mutation.attributeName;
+            if (attribute == "data-percent-complete") {
+              var percentage = mutation.target.getAttribute(attribute);
+              div.removeChild(span);
+              bar.removeChild(div);
+              // span.remove();
+              // div.remove();
+              span.textContent = percentage;
+              div.appendChild(span);
+              bar.appendChild(div);
+              // const div = GM_addElement(bar, "div", {
+              //   class: "percentageContainer"
+              // });
+              // const span = GM_addElement(div, "span", {
+              //   class: "percentage",
+              //   textContent: percentage
+              // });
+            }
+          });
+        });
+        observer.observe(section, {
+          attributes: true
+        });
+      });
+    });
+  }
 })();
